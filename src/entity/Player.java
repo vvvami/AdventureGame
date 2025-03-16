@@ -10,7 +10,12 @@ public class Player extends Entity {
         this.setSpeed(4);
         this.keyHandler = GamePanel.keyHandler;
 
-        this.addSprite("walk1", "entities/player/player_sprite_test.png");
+        addSprite("player_sprite_test1");
+        addSprite("player_sprite_test2");
+        addAnimatedSprite("player_test", 8)
+                .addFrame("player_sprite_test1", this)
+                .addFrame("player_sprite_test2", this);
+
     }
 
     @Override
@@ -30,6 +35,6 @@ public class Player extends Entity {
 
     @Override
     public void draw() {
-        this.drawSprite("walk1");
+        this.getSpriteAnimation("player_test").render(this.getRenderer());
     }
 }

@@ -1,5 +1,7 @@
 package main;
 
+import render.Sprite;
+
 import javax.swing.*;
 
 public class Main {

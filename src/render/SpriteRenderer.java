@@ -13,25 +13,40 @@ public class SpriteRenderer {
 
     private Interactable interactable;
 
-    private static String assetPath = "/assets/sprites/";
+    public static final String assetPath = "/assets/sprites/";
+
+    public SpriteRenderer() {
+
+    }
 
     public SpriteRenderer(Interactable interactable) {
         this.interactable = interactable;
     }
 
+    public void renderSprite(Sprite sprite, int x, int y) {
+       drawSpriteFromImage(
+               getImageFromPath(
+                       sprite.getFilePath()), x, y);
+    }
 
-    public void drawSpriteFromImage(BufferedImage bufferedImage) {
-        graphics2D.drawImage(bufferedImage, interactable.getX(), interactable.getY(),
+    public void renderSprite(Sprite sprite, Interactable interactable) {
+        drawSpriteFromImage(
+                getImageFromPath(
+                        sprite.getFilePath()), interactable.getX(), interactable.getY());
+    }
+
+    public void renderSprite(Sprite sprite) {
+        drawSpriteFromImage(
+                getImageFromPath(
+                        sprite.getFilePath()), interactable.getX(), interactable.getY());
+    }
+
+    private void drawSpriteFromImage(BufferedImage bufferedImage, int x, int y) {
+        graphics2D.drawImage(bufferedImage, x, y,
                 GamePanel.getTileSize(), GamePanel.getTileSize(), null);
     }
 
-
-
-    public void setGraphics2D(Graphics2D graphics2D) {
-        this.graphics2D = graphics2D;
-    }
-
-    public BufferedImage getSpriteFromPath(String filePath) {
+    private BufferedImage getImageFromPath(String filePath) {
         try {
             return ImageIO.read(getClass().getResourceAsStream(filePath));
         } catch (IOException e) {
@@ -39,9 +54,8 @@ public class SpriteRenderer {
         }
     }
 
-    public static String fromPath(String path) {
-        return assetPath + path;
+    public void setGraphics2D(Graphics2D graphics2D) {
+        this.graphics2D = graphics2D;
     }
-
 
 }

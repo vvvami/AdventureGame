@@ -1,10 +1,11 @@
 package entity;
 
+import render.AnimatedSprite;
+import render.Renderable;
 import render.SpriteRenderer;
-import render.SpriteSet;
+import render.Sprite;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class Interactable {
@@ -12,9 +13,11 @@ public class Interactable {
     private int y = 100;
 
     private SpriteRenderer renderer;
-    private SpriteSet spriteSet = new SpriteSet();
+    private ArrayList<Renderable> sprites = new ArrayList<>();
 
     private static ArrayList<Interactable> interactableList = new ArrayList<>();
+
+    public static final String assetPath = SpriteRenderer.assetPath + "entities/";
 
     public Interactable() {
         interactableList.add(this);
@@ -41,35 +44,42 @@ public class Interactable {
         return renderer;
     }
 
-    public SpriteSet getSpriteSet() {
-        return spriteSet;
+    public ArrayList<Renderable> getSprites() {
+        return sprites;
     }
 
-    public Interactable addSprite(String name, String filePath) {
-        spriteSet.addFromPath(name, filePath);
-        return this;
+    public void addSprite(String name) {
+        String filePath = assetPath + name + ".png";
+        if (sprites.contains(Sprite.getSpriteFromName(name, this))) {
+            return;
+        }
+
+        sprites.add(new Sprite(filePath));
+    }
+
+    public AnimatedSprite addAnimatedSprite(String name) {
+        sprites.add(new AnimatedSprite(name, 10));
+        return (AnimatedSprite) sprites.getLast();
+    }
+
+    public AnimatedSprite addAnimatedSprite(String name, int speed) {
+        sprites.add(new AnimatedSprite(name, speed));
+        return (AnimatedSprite) sprites.getLast();
+    }
+
+    public Sprite getSprite(String name) {
+        return Sprite.getSpriteFromName(name, this);
+    }
+
+    public AnimatedSprite getSpriteAnimation(String name) {
+        return AnimatedSprite.getAnimationFromName(name, this);
     }
 
     public void update() {
-
     }
 
     public void draw() {
 
-    }
-
-    public void drawSprite(String name) {
-        this.getRenderer().drawSpriteFromImage(
-                getImageFromName(name));
-    }
-
-    private BufferedImage getImageFromName(String name) {
-        return getRenderer().getSpriteFromPath(
-                getPathFromSpriteSet(name));
-    }
-
-    private String getPathFromSpriteSet(String name) {
-        return this.getSpriteSet().getPathFromName(name);
     }
 
     public static void renderInteractablesInList(Graphics2D graphics2D) {
