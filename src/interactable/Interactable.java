@@ -1,23 +1,22 @@
-package entity;
+package interactable;
 
-import render.AnimatedSprite;
-import render.Renderable;
-import render.SpriteRenderer;
-import render.Sprite;
+import render.*;
 
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Interactable {
+public class Interactable implements Renderable {
     private int x = 100;
     private int y = 100;
 
+    private int scale;
+
+    private boolean hasCollision;
+
     private SpriteRenderer renderer;
-    private ArrayList<Renderable> sprites = new ArrayList<>();
+    private ArrayList<SpriteType> sprites = new ArrayList<>();
 
     private static ArrayList<Interactable> interactableList = new ArrayList<>();
-
-    public static final String assetPath = SpriteRenderer.assetPath + "entities/";
 
     public Interactable() {
         interactableList.add(this);
@@ -44,17 +43,26 @@ public class Interactable {
         return renderer;
     }
 
-    public ArrayList<Renderable> getSprites() {
+    public ArrayList<SpriteType> getSprites() {
         return sprites;
     }
 
-    public void addSprite(String name) {
-        String filePath = assetPath + name + ".png";
-        if (sprites.contains(Sprite.getSpriteFromName(name, this))) {
-            return;
+    @SuppressWarnings(value = "all")
+    public <T extends Interactable> T addSprite(String name) {
+        if (sprites.contains(Sprite.getSpriteFromName(name))) {
+            return null;
         }
 
-        sprites.add(new Sprite(filePath));
+        String filePath = getFullFilePath(name);
+
+        Sprite newSprite = new Sprite(filePath);
+        sprites.add(newSprite);
+        return (T) this;
+    }
+
+    private String getFullFilePath(String name) {
+        return SpriteRenderer.assetPath + this.getAssetFolder() + "/"
+                + name + SpriteRenderer.spriteFileType;
     }
 
     public AnimatedSprite addAnimatedSprite(String name) {
@@ -68,14 +76,20 @@ public class Interactable {
     }
 
     public Sprite getSprite(String name) {
-        return Sprite.getSpriteFromName(name, this);
+        return Sprite.getSpriteFromName(name);
     }
 
     public AnimatedSprite getSpriteAnimation(String name) {
-        return AnimatedSprite.getAnimationFromName(name, this);
+        return AnimatedSprite.getAnimationFromName(name);
     }
 
     public void update() {
+
+    }
+
+    @Override
+    public String getAssetFolder() {
+        return "";
     }
 
     public void draw() {
@@ -88,6 +102,7 @@ public class Interactable {
             interactable.draw();
         }
     }
+
 
     public static void updateInteractablesInList() {
         for (Interactable interactable : interactableList) {

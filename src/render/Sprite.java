@@ -1,12 +1,11 @@
 package render;
 
-import entity.Interactable;
-
 import java.util.ArrayList;
 
-public class Sprite implements Renderable {
+public class Sprite implements SpriteType {
     private String name;
     private String filePath;
+    private int scale = 1;
 
     private static ArrayList<Sprite> spriteList = new ArrayList<>();
 
@@ -34,10 +33,17 @@ public class Sprite implements Renderable {
         this.name = name;
     }
 
-    public static Sprite getSpriteFromName(String name, Interactable interactable) {
-        for (Renderable renderable : interactable.getSprites()) {
-            if (renderable instanceof Sprite sprite
-                    && sprite.name.equals(name)) {
+    public void setScale(int scale) {
+        this.scale = scale;
+    }
+
+    public int getScale() {
+        return scale;
+    }
+
+    public static Sprite getSpriteFromName(String name) {
+        for (Sprite sprite : spriteList) {
+            if (sprite.name.equals(name)) {
                 return sprite;
             }
         }
@@ -49,10 +55,6 @@ public class Sprite implements Renderable {
         int extensionIndex = filePath.lastIndexOf(".");
 
         return filePath.substring(nameIndex, extensionIndex);
-    }
-
-    public void render(SpriteRenderer renderer) {
-        renderer.renderSprite(this);
     }
 
 }

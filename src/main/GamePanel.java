@@ -1,7 +1,7 @@
 package main;
 
-import entity.Interactable;
-import entity.Player;
+import interactable.Interactable;
+import interactable.entity.Player;
 import util.KeyHandler;
 
 import javax.swing.*;
@@ -9,25 +9,22 @@ import java.awt.*;
 
 public class GamePanel extends JPanel implements Runnable {
     // Screen settings
-    private static final int originalTileSize = 16;
-    private static final int scale = 3;
+    public static final int originalTileSize = 16;
+    public static final int scale = 3;
 
     // 48x48 Tile, we are scaling up each sprite by x3 while being 16x16
-    private static final int tileSize = originalTileSize * scale;
+    public static final int tileSize = originalTileSize * scale;
 
     // Here we set the screen size based on columns and rows scaled by the tileSize
-    private static final int maxScreenColumns = 16;
-    private static final int maxScreenRows = 12;
-    private static final int screenWidth = tileSize * maxScreenColumns;
-    private static final int screenHeight = tileSize * maxScreenRows;
+    public static final int maxScreenColumns = 16;
+    public static final int maxScreenRows = 12;
+    public static final int screenWidth = tileSize * maxScreenColumns;
+    public static final int screenHeight = tileSize * maxScreenRows;
 
     private static GamePanel gamePanel;
 
     // Key input handler
     public static final KeyHandler keyHandler = new KeyHandler();
-
-    Player player = new Player();
-
 
 
     // FPS
@@ -83,13 +80,16 @@ public class GamePanel extends JPanel implements Runnable {
 
     // Updates info
     public void update() {
+
         Interactable.updateInteractablesInList();
     }
 
     // Updates graphics
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Interactable.renderInteractablesInList((Graphics2D) g);
+        Graphics2D g2 = (Graphics2D) g;
+
+        Interactable.renderInteractablesInList(g2);
     }
 
     public static GamePanel getGamePanel() {
@@ -98,17 +98,5 @@ public class GamePanel extends JPanel implements Runnable {
 
     public static void setGamePanel(GamePanel panel) {
         gamePanel = panel;
-    }
-
-    public static int getScreenWidth() {
-        return screenWidth;
-    }
-
-    public static int getScreenHeight() {
-        return screenHeight;
-    }
-
-    public static int getTileSize() {
-        return tileSize;
     }
 }

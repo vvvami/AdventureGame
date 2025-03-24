@@ -1,11 +1,8 @@
 package render;
 
-import entity.Interactable;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 
-public class AnimatedSprite implements Renderable {
+public class AnimatedSprite implements SpriteType {
 
     private ArrayList<Sprite> sprites = new ArrayList<>();
 
@@ -17,44 +14,22 @@ public class AnimatedSprite implements Renderable {
 
     private String name;
 
-    public AnimatedSprite(String name, int speed, Sprite ... sprites) {
-        this.sprites = (ArrayList<Sprite>) Arrays.stream(sprites).toList();
-        this.speed = speed;
-        this.name = name;
-    }
+    private static ArrayList<AnimatedSprite> animations = new ArrayList<>();
 
     public AnimatedSprite(String name, int speed) {
+        checkIfNameExists(name);
         this.name = name;
         this.speed = speed;
+        animations.add(this);
     }
 
-    public static AnimatedSprite getAnimationFromName(String name, Interactable interactable) {
-        for (Renderable renderable : interactable.getSprites()) {
-            if (renderable instanceof AnimatedSprite animatedSprite
-            && animatedSprite.name.equals(name)) {
+    public static AnimatedSprite getAnimationFromName(String name) {
+        for (AnimatedSprite animatedSprite : animations) {
+            if (animatedSprite.name.equals(name)) {
                 return animatedSprite;
             }
         }
         return null;
-    }
-
-    public void render(SpriteRenderer renderer) {
-        if (sprites.isEmpty()) {
-            return;
-        }
-
-        Sprite nextSprite = sprites.get(index);
-
-        frameCounter++;
-        if (speed == frameCounter) {
-            index++;
-            frameCounter = 0;
-        }
-
-        if (index == sprites.size()) {
-            index = 0;
-        }
-        renderer.renderSprite(nextSprite);
     }
 
     public AnimatedSprite addFrame(Sprite sprite) {
@@ -62,9 +37,25 @@ public class AnimatedSprite implements Renderable {
         return this;
     }
 
-    public AnimatedSprite addFrame(String name, Interactable interactable) {
-        this.sprites.add(Sprite.getSpriteFromName(name, interactable));
+    public AnimatedSprite addFrame(String name) {
+        this.sprites.add(Sprite.getSpriteFromName(name));
         return this;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getFrameCounter() {
+        return frameCounter;
+    }
+
+    public void setFrameCounter(int frameCounter) {
+        this.frameCounter = frameCounter;
     }
 
     public int getSpeed() {
@@ -77,5 +68,13 @@ public class AnimatedSprite implements Renderable {
 
     public ArrayList<Sprite> getSprites() {
         return sprites;
+    }
+
+    private void checkIfNameExists(String name) {
+        for (AnimatedSprite animatedSprite : animations) {
+            if (animatedSprite.name.equals(name)) {
+                    throw new RuntimeException("This animation already exists!");
+            }
+        }
     }
 }

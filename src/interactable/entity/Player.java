@@ -1,6 +1,7 @@
-package entity;
+package interactable.entity;
 
 import main.GamePanel;
+import render.AnimatedSprite;
 import util.KeyHandler;
 
 public class Player extends Entity {
@@ -12,9 +13,9 @@ public class Player extends Entity {
 
         addSprite("player_sprite_test1");
         addSprite("player_sprite_test2");
-        addAnimatedSprite("player_test", 8)
-                .addFrame("player_sprite_test1", this)
-                .addFrame("player_sprite_test2", this);
+        addAnimatedSprite("player_test", 12)
+                .addFrame("player_sprite_test1")
+                .addFrame("player_sprite_test2");
 
     }
 
@@ -35,6 +36,7 @@ public class Player extends Entity {
 
     @Override
     public void draw() {
-        this.getSpriteAnimation("player_test").render(this.getRenderer());
+        getRenderer().renderSpriteAnimation("player_test");
+
     }
 }

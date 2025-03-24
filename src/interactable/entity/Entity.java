@@ -1,4 +1,6 @@
-package entity;
+package interactable.entity;
+
+import interactable.Interactable;
 
 public class Entity extends Interactable {
 
@@ -16,4 +18,8 @@ public class Entity extends Interactable {
         this.speed = speed;
     }
 
+    @Override
+    public String getAssetFolder() {
+        return "entities";
+    }
 }
