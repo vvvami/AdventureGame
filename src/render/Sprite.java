@@ -3,7 +3,6 @@ package render;
 import java.util.ArrayList;
 
 public class Sprite implements SpriteType {
-    private String name;
     private String filePath;
     private int scale = 1;
 
@@ -12,7 +11,6 @@ public class Sprite implements SpriteType {
     public Sprite(String filePath) {
         this.filePath = filePath;
 
-        this.name = spriteNameFromFilePath(filePath);
 
         spriteList.add(this);
     }
@@ -26,11 +24,7 @@ public class Sprite implements SpriteType {
     }
 
     public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        return spriteNameFromFilePath(filePath);
     }
 
     public void setScale(int scale) {
@@ -43,7 +37,7 @@ public class Sprite implements SpriteType {
 
     public static Sprite getSpriteFromName(String name) {
         for (Sprite sprite : spriteList) {
-            if (sprite.name.equals(name)) {
+            if (sprite.getName().equals(name)) {
                 return sprite;
             }
         }

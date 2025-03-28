@@ -48,7 +48,7 @@ public class Interactable implements Renderable {
     }
 
     @SuppressWarnings(value = "all")
-    public <T extends Interactable> T addSprite(String name) {
+    public Sprite addSprite(String name) {
         if (sprites.contains(Sprite.getSpriteFromName(name))) {
             return null;
         }
@@ -57,7 +57,7 @@ public class Interactable implements Renderable {
 
         Sprite newSprite = new Sprite(filePath);
         sprites.add(newSprite);
-        return (T) this;
+        return newSprite;
     }
 
     private String getFullFilePath(String name) {

@@ -17,6 +17,8 @@ public class Player extends Entity {
                 .addFrame("player_sprite_test1")
                 .addFrame("player_sprite_test2");
 
+
+
     }
 
     @Override
@@ -37,6 +39,6 @@ public class Player extends Entity {
     @Override
     public void draw() {
         getRenderer().renderSpriteAnimation("player_test");
-
     }
+
 }

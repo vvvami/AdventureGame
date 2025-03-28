@@ -29,7 +29,7 @@ public class SpriteRenderer {
         renderSprite(sprite);
     }
 
-    public void renderSprite(Sprite sprite) {
+    public void  renderSprite(Sprite sprite) {
         if (sprite == null) {
             return;
         }
@@ -51,6 +51,7 @@ public class SpriteRenderer {
         Sprite nextSprite = animatedSprite.getSprites().get(animatedSprite.getIndex());
 
         animatedSprite.setFrameCounter(animatedSprite.getFrameCounter() + 1);
+
         if (animatedSprite.getSpeed() == animatedSprite.getFrameCounter()) {
             animatedSprite.setIndex(animatedSprite.getIndex() + 1);
             animatedSprite.setFrameCounter(0);
@@ -62,11 +63,11 @@ public class SpriteRenderer {
         this.renderSprite(nextSprite);
     }
 
-    private void drawSpriteFromImage(BufferedImage bufferedImage, int x, int y, int scale) {
+    private void drawSpriteFromImage(Image image, int x, int y, int scale) {
         x = centerSpritePositionWithScale(x, scale);
         y = centerSpritePositionWithScale(y, scale);
 
-        graphics2D.drawImage(bufferedImage, x, y,
+        graphics2D.drawImage(image, x, y,
                 GamePanel.tileSize * scale, GamePanel.tileSize * scale, null);
     }
 
@@ -75,7 +76,7 @@ public class SpriteRenderer {
         return num;
     }
 
-    private BufferedImage getImageFromPath(String filePath) {
+    private Image getImageFromPath(String filePath) {
         try {
             return ImageIO.read(getClass().getResourceAsStream(filePath));
         } catch (IOException e) {
