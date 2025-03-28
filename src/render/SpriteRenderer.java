@@ -29,7 +29,7 @@ public class SpriteRenderer {
         renderSprite(sprite);
     }
 
-    public void  renderSprite(Sprite sprite) {
+    public void renderSprite(Sprite sprite) {
         if (sprite == null) {
             return;
         }
@@ -48,6 +48,7 @@ public class SpriteRenderer {
         if (animatedSprite == null) {
             return;
         }
+
         Sprite nextSprite = animatedSprite.getSprites().get(animatedSprite.getIndex());
 
         animatedSprite.setFrameCounter(animatedSprite.getFrameCounter() + 1);

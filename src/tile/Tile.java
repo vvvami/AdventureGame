@@ -7,7 +7,6 @@ public class Tile extends Interactable {
 
     public Tile() {
         super();
-        addSprite("grass_tile");
     }
 
     @Override
@@ -16,8 +15,8 @@ public class Tile extends Interactable {
     }
 
     @Override
-    public void draw() {
-        this.getRenderer().renderSprite("grass_tile");
-
+    public void registerSprites() {
+        addSprite("grass_tile");
+        setSprite("grass_tile");
     }
 }

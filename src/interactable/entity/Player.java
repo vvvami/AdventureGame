@@ -11,14 +11,6 @@ public class Player extends Entity {
         this.setSpeed(4);
         this.keyHandler = GamePanel.keyHandler;
 
-        addSprite("player_sprite_test1");
-        addSprite("player_sprite_test2");
-        addAnimatedSprite("player_test", 12)
-                .addFrame("player_sprite_test1")
-                .addFrame("player_sprite_test2");
-
-
-
     }
 
     @Override
@@ -37,8 +29,13 @@ public class Player extends Entity {
     }
 
     @Override
-    public void draw() {
-        getRenderer().renderSpriteAnimation("player_test");
+    public void registerSprites() {
+        addSprite("player_sprite_test1");
+        addSprite("player_sprite_test2");
+        addAnimatedSprite("player_test", 12)
+                .addFrame("player_sprite_test1")
+                .addFrame("player_sprite_test2")
+                .scale(1.4f);
+        setSprite("player_test");
     }
-
 }

@@ -14,7 +14,8 @@ public class Interactable implements Renderable {
     private boolean hasCollision;
 
     private SpriteRenderer renderer;
-    private ArrayList<SpriteType> sprites = new ArrayList<>();
+
+    private SpriteType currentSprite;
 
     private static ArrayList<Interactable> interactableList = new ArrayList<>();
 
@@ -43,20 +44,15 @@ public class Interactable implements Renderable {
         return renderer;
     }
 
-    public ArrayList<SpriteType> getSprites() {
-        return sprites;
-    }
-
     @SuppressWarnings(value = "all")
     public Sprite addSprite(String name) {
-        if (sprites.contains(Sprite.getSpriteFromName(name))) {
+        if (Sprite.getList().contains(Sprite.getSpriteFromName(name))) {
             return null;
         }
 
         String filePath = getFullFilePath(name);
 
         Sprite newSprite = new Sprite(filePath);
-        sprites.add(newSprite);
         return newSprite;
     }
 
@@ -66,25 +62,26 @@ public class Interactable implements Renderable {
     }
 
     public AnimatedSprite addAnimatedSprite(String name) {
-        sprites.add(new AnimatedSprite(name, 10));
-        return (AnimatedSprite) sprites.getLast();
+        AnimatedSprite.getList().add(new AnimatedSprite(name, 12));
+        return (AnimatedSprite) SpriteType.getList().getLast();
     }
 
     public AnimatedSprite addAnimatedSprite(String name, int speed) {
-        sprites.add(new AnimatedSprite(name, speed));
-        return (AnimatedSprite) sprites.getLast();
+        AnimatedSprite.getList().add(new AnimatedSprite(name, speed));
+        return (AnimatedSprite) SpriteType.getList().getLast();
     }
 
-    public Sprite getSprite(String name) {
-        return Sprite.getSpriteFromName(name);
+    public void setSprite(String name) {
+        SpriteType sprite = Sprite.getSpriteFromName(name);
+        if (sprite == null) {
+            sprite = AnimatedSprite.getAnimationFromName(name);
+        }
+
+        this.currentSprite = sprite;
     }
 
     public AnimatedSprite getSpriteAnimation(String name) {
         return AnimatedSprite.getAnimationFromName(name);
-    }
-
-    public void update() {
-
     }
 
     @Override
@@ -92,7 +89,23 @@ public class Interactable implements Renderable {
         return "";
     }
 
+    @Override
     public void draw() {
+        if (currentSprite instanceof AnimatedSprite) {
+            getRenderer().renderSpriteAnimation((AnimatedSprite) currentSprite);
+        } else {
+            getRenderer().renderSprite((Sprite) currentSprite);
+        }
+    }
+
+
+    @Override
+    public void update() {
+
+    }
+
+    @Override
+    public void registerSprites() {
 
     }
 
@@ -108,5 +121,9 @@ public class Interactable implements Renderable {
         for (Interactable interactable : interactableList) {
             interactable.update();
         }
+    }
+
+    public static ArrayList<Interactable> getList() {
+        return interactableList;
     }
 }

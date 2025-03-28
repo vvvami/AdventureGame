@@ -2,17 +2,13 @@ package render;
 
 import java.util.ArrayList;
 
-public class Sprite implements SpriteType {
+public class Sprite extends SpriteType {
     private String filePath;
     private int scale = 1;
 
-    private static ArrayList<Sprite> spriteList = new ArrayList<>();
-
     public Sprite(String filePath) {
+        super();
         this.filePath = filePath;
-
-
-        spriteList.add(this);
     }
 
     public String getFilePath() {
@@ -36,8 +32,9 @@ public class Sprite implements SpriteType {
     }
 
     public static Sprite getSpriteFromName(String name) {
-        for (Sprite sprite : spriteList) {
-            if (sprite.getName().equals(name)) {
+        for (SpriteType spriteType : SpriteType.getList()) {
+            if (spriteType instanceof Sprite sprite
+                    && sprite.getName().equals(name)) {
                 return sprite;
             }
         }
@@ -50,5 +47,4 @@ public class Sprite implements SpriteType {
 
         return filePath.substring(nameIndex, extensionIndex);
     }
-
 }

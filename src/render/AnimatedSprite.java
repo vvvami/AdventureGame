@@ -2,7 +2,7 @@ package render;
 
 import java.util.ArrayList;
 
-public class AnimatedSprite implements SpriteType {
+public class AnimatedSprite extends SpriteType {
 
     private ArrayList<Sprite> sprites = new ArrayList<>();
 
@@ -14,18 +14,18 @@ public class AnimatedSprite implements SpriteType {
 
     private String name;
 
-    private static ArrayList<AnimatedSprite> animations = new ArrayList<>();
 
     public AnimatedSprite(String name, int speed) {
-        checkIfNameExists(name);
+        super();
+
         this.name = name;
         this.speed = speed;
-        animations.add(this);
     }
 
     public static AnimatedSprite getAnimationFromName(String name) {
-        for (AnimatedSprite animatedSprite : animations) {
-            if (animatedSprite.name.equals(name)) {
+        for (SpriteType sprite : SpriteType.getList()) {
+            if (sprite instanceof AnimatedSprite animatedSprite
+                    && animatedSprite.name.equals(name)) {
                 return animatedSprite;
             }
         }
@@ -40,6 +40,12 @@ public class AnimatedSprite implements SpriteType {
     public AnimatedSprite addFrame(String name) {
         this.sprites.add(Sprite.getSpriteFromName(name));
         return this;
+    }
+
+    public void scale(float scale) {
+        for (Sprite sprite : sprites) {
+            sprite.setScale((int) (sprite.getScale() * scale));
+        }
     }
 
     public int getIndex() {
@@ -71,8 +77,9 @@ public class AnimatedSprite implements SpriteType {
     }
 
     private void checkIfNameExists(String name) {
-        for (AnimatedSprite animatedSprite : animations) {
-            if (animatedSprite.name.equals(name)) {
+        for (SpriteType sprite : SpriteType.getList()) {
+            if (sprite instanceof AnimatedSprite animatedSprite
+                    && animatedSprite.name.equals(name)) {
                     throw new RuntimeException("This animation already exists!");
             }
         }
