@@ -43,16 +43,19 @@ public class AnimatedSprite extends SpriteType {
     }
 
     public void scale(float scale) {
+        ArrayList<Sprite> scaled = new ArrayList<>();
         for (Sprite sprite : sprites) {
-            sprite.setScale((int) (sprite.getScale() * scale));
+            if (scaled.contains(sprite)) {continue;}
+            sprite.setScale(sprite.getScale() * scale);
+            scaled.add(sprite);
         }
     }
 
-    public int getIndex() {
+    public int getFrameIndex() {
         return index;
     }
 
-    public void setIndex(int index) {
+    public void setFrameIndex(int index) {
         this.index = index;
     }
 

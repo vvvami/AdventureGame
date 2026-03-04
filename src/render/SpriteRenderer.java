@@ -1,10 +1,13 @@
 package render;
 
 import interactable.Interactable;
+import interactable.entity.Player;
 import main.GamePanel;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -15,6 +18,8 @@ public class SpriteRenderer {
 
     public static final String assetPath = "/assets/sprites/";
     public static final String spriteFileType = ".png";
+
+    private SpriteManager spriteManager = new SpriteManager();
 
     public SpriteRenderer() {
 
@@ -29,14 +34,21 @@ public class SpriteRenderer {
         renderSprite(sprite);
     }
 
+    public void renderSprite(Sprite sprite, float x, float y) {
+
+    }
+
     public void renderSprite(Sprite sprite) {
         if (sprite == null) {
+            return;
+        }
+        if (isOutOfBounds()) {
             return;
         }
 
         drawSpriteFromImage(
                 getImageFromPath(
-                        sprite.getFilePath()), interactable.getX(), interactable.getY(), sprite.getScale());
+                        sprite.getFilePath()), (int) interactable.getX(), (int) interactable.getY(), sprite.getScale());
     }
 
     public void renderSpriteAnimation(String name) {
@@ -49,44 +61,61 @@ public class SpriteRenderer {
             return;
         }
 
-        Sprite nextSprite = animatedSprite.getSprites().get(animatedSprite.getIndex());
+        Sprite nextSprite = animatedSprite.getSprites().get(animatedSprite.getFrameIndex());
 
         animatedSprite.setFrameCounter(animatedSprite.getFrameCounter() + 1);
 
         if (animatedSprite.getSpeed() == animatedSprite.getFrameCounter()) {
-            animatedSprite.setIndex(animatedSprite.getIndex() + 1);
+            animatedSprite.setFrameIndex(animatedSprite.getFrameIndex() + 1);
             animatedSprite.setFrameCounter(0);
         }
 
-        if (animatedSprite.getIndex() == animatedSprite.getSprites().size()) {
-            animatedSprite.setIndex(0);
+        if (animatedSprite.getFrameIndex() == animatedSprite.getSprites().size()) {
+            animatedSprite.setFrameIndex(0);
         }
         this.renderSprite(nextSprite);
     }
 
-    private void drawSpriteFromImage(Image image, int x, int y, int scale) {
-        x = centerSpritePositionWithScale(x, scale);
-        y = centerSpritePositionWithScale(y, scale);
+    private void drawSpriteFromImage(BufferedImage image, int x, int y, float scale) {
+        // center sprite after scaling
+        float posX = centerSpritePositionWithScale(x, scale);
+        float posY = centerSpritePositionWithScale(y, scale);
 
-        graphics2D.drawImage(image, x, y,
-                GamePanel.tileSize * scale, GamePanel.tileSize * scale, null);
+        // translate render position with cam position
+        posX -= GamePanel.getCamPos().x;
+        posY -= GamePanel.getCamPos().y;
+
+        // draw the sprite
+        AffineTransform transform = new AffineTransform();
+        transform.translate(posX, posY);
+        transform.scale(GamePanel.tileSize * scale / 16, GamePanel.tileSize * scale / 16);
+        graphics2D.drawImage(image, transform, null);
     }
 
-    private int centerSpritePositionWithScale(int num, int scale) {
-        num -= (GamePanel.tileSize * scale / 2) - GamePanel.tileSize / 2;
-        return num;
+    private float centerSpritePositionWithScale(float pos, float scale) {
+        pos -= (GamePanel.tileSize * scale / 2);
+        return pos;
     }
 
-    private Image getImageFromPath(String filePath) {
-        try {
-            return ImageIO.read(getClass().getResourceAsStream(filePath));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private BufferedImage getImageFromPath(String filePath) {
+        return spriteManager.get(filePath);
     }
 
     public void setGraphics2D(Graphics2D graphics2D) {
         this.graphics2D = graphics2D;
+    }
+
+    private boolean isOutOfBounds() {
+        if (interactable instanceof Player) {return false;}
+
+        Rectangle viewport = GamePanel.getViewport();
+        Interactable i = interactable;
+        int offs = 48;
+
+        return i.getX() < viewport.x - offs
+                || i.getX() > viewport.x + viewport.width + offs
+                || i.getY() < viewport.y - offs
+                || i.getY() > viewport.y + viewport.height + offs;
     }
 
 }

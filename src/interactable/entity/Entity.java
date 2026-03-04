@@ -2,19 +2,19 @@ package interactable.entity;
 
 import interactable.Interactable;
 
-public class Entity extends Interactable {
+public abstract class Entity extends Interactable {
 
-    private int speed;
+    private float speed;
 
     public Entity() {
 
     }
 
-    public int getSpeed() {
+    public float getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(float speed) {
         this.speed = speed;
     }
 

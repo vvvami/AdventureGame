@@ -5,39 +5,47 @@ import render.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Interactable implements Renderable {
-    private int x = 100;
-    private int y = 100;
+public abstract class Interactable implements Renderable {
+    private float x;
+    private float y;
 
-    private int scale;
-
+    private Rectangle collider;
     private boolean hasCollision;
 
     private SpriteRenderer renderer;
-
     private SpriteType currentSprite;
+    private ArrayList<SpriteType> spriteLayers = new ArrayList<>();
 
     private static ArrayList<Interactable> interactableList = new ArrayList<>();
 
     public Interactable() {
+        this(0,0);
+
+    }
+
+    public Interactable(int x, int y) {
+        this.x = x;
+        this.y = y;
         interactableList.add(this);
         renderer = new SpriteRenderer(this);
     }
 
-    public int getX() {
+    public float getX() {
         return x;
     }
 
-    public int getY() {
+    public float getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public Interactable setY(float y) {
         this.y = y;
+        return this;
     }
 
-    public void setX(int x) {
+    public Interactable setX(float x) {
         this.x = x;
+        return this;
     }
 
     public SpriteRenderer getRenderer() {
@@ -57,7 +65,7 @@ public class Interactable implements Renderable {
     }
 
     private String getFullFilePath(String name) {
-        return SpriteRenderer.assetPath + this.getAssetFolder() + "/"
+        return SpriteRenderer.assetPath + getAssetFolder() + "/"
                 + name + SpriteRenderer.spriteFileType;
     }
 
@@ -72,21 +80,21 @@ public class Interactable implements Renderable {
     }
 
     public void setSprite(String name) {
-        SpriteType sprite = Sprite.getSpriteFromName(name);
+        SpriteType sprite = AnimatedSprite.getAnimationFromName(name);
         if (sprite == null) {
-            sprite = AnimatedSprite.getAnimationFromName(name);
+            sprite = Sprite.getSpriteFromName(name);
+        }
+
+        if (this.currentSprite instanceof AnimatedSprite animatedSprite
+        && animatedSprite.getFrameIndex() == 0) {
+            return;
         }
 
         this.currentSprite = sprite;
     }
 
-    public AnimatedSprite getSpriteAnimation(String name) {
-        return AnimatedSprite.getAnimationFromName(name);
-    }
-
-    @Override
-    public String getAssetFolder() {
-        return "";
+    public SpriteType getCurrentSprite() {
+        return currentSprite;
     }
 
     @Override
@@ -95,6 +103,14 @@ public class Interactable implements Renderable {
             getRenderer().renderSpriteAnimation((AnimatedSprite) currentSprite);
         } else {
             getRenderer().renderSprite((Sprite) currentSprite);
+        }
+
+        for (SpriteType sprite : spriteLayers) {
+            if (sprite instanceof AnimatedSprite) {
+                getRenderer().renderSpriteAnimation((AnimatedSprite) sprite);
+            } else {
+                getRenderer().renderSprite((Sprite) sprite);
+            }
         }
     }
 
@@ -126,4 +142,62 @@ public class Interactable implements Renderable {
     public static ArrayList<Interactable> getList() {
         return interactableList;
     }
+
+    public String getAssetFolder() {
+        return "";
+    }
+
+    public Rectangle getCollider() {
+        return collider;
+    }
+
+    public void setCollider(Rectangle collider) {
+        this.collider = collider;
+    }
+
+    public ArrayList<SpriteType> getSpriteLayers() {
+        return spriteLayers;
+    }
+
+    public void setCurrentSprite(String name) {
+        SpriteType sprite = AnimatedSprite.getAnimationFromName(name);
+        if (sprite == null) {
+            sprite = Sprite.getSpriteFromName(name);
+        }
+        this.currentSprite = sprite;
+    }
+
+    public void setSpriteLayers(ArrayList<SpriteType> spriteLayers) {
+        this.spriteLayers = spriteLayers;
+    }
+
+    public void addSpriteLayer(String name) {
+        SpriteType sprite = AnimatedSprite.getAnimationFromName(name);
+        if (sprite == null) {
+            sprite = Sprite.getSpriteFromName(name);
+        }
+        addSpriteLayer(sprite);
+    }
+
+    public void addSpriteLayer(SpriteType sprite) {
+        if (spriteLayers.contains(sprite)) {return;}
+        spriteLayers.add(sprite);
+    }
+
+    public void removeSpriteLayer(String name) {
+        SpriteType sprite = AnimatedSprite.getAnimationFromName(name);
+        if (sprite == null) {
+            sprite = Sprite.getSpriteFromName(name);
+        }
+        removeSpriteLayer(sprite);
+    }
+
+    public void removeSpriteLayer(SpriteType sprite) {
+        spriteLayers.remove(sprite);
+    }
+
+    public void clearSpriteLayers() {
+        spriteLayers.clear();
+    }
+
 }

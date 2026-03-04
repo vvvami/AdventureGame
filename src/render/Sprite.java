@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Sprite extends SpriteType {
     private String filePath;
-    private int scale = 1;
+    private float scale = 1f;
 
     public Sprite(String filePath) {
         super();
@@ -23,11 +23,11 @@ public class Sprite extends SpriteType {
         return spriteNameFromFilePath(filePath);
     }
 
-    public void setScale(int scale) {
+    public void setScale(float scale) {
         this.scale = scale;
     }
 
-    public int getScale() {
+    public float getScale() {
         return scale;
     }
 

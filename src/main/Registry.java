@@ -2,13 +2,24 @@ package main;
 
 import interactable.Interactable;
 import interactable.entity.Player;
-import tile.Tile;
+import interactable.tile.Tile;
 
 public class Registry {
 
     public static void register() {
-        Tile tile = new Tile();
-        Player player = new Player();
+        int i = 0;
+        int j = 0;
+        while (i < GamePanel.windowWidth * 4) {
+            while (j < GamePanel.windowHeight * 4) {
+                Tile tile = new Tile(i,j);
+                j += 48;
+            }
+            j = 0;
+            i += 48;
+        }
+
+
+        Player player = (Player) new Player().setX(GamePanel.windowWidth / 2).setY(GamePanel.windowHeight / 2);
 
 
         registerSprites();
