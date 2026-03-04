@@ -1,6 +1,7 @@
 package interactable.tile;
 
 import interactable.Interactable;
+import interactable.interactions.Collider;
 
 import java.awt.*;
 
@@ -31,7 +32,7 @@ public class Tile extends Interactable {
     }
 
     @Override
-    public Rectangle getCollider() {
+    public Collider getCollider() {
         return null;
     }
 }

@@ -1,6 +1,7 @@
 package main;
 
 import interactable.Interactable;
+import interactable.entity.Knight;
 import interactable.entity.Player;
 import interactable.tile.Tile;
 
@@ -18,10 +19,9 @@ public class Registry {
             i += 48;
         }
 
+        Knight knight = new Knight();
 
         Player player = (Player) new Player().setX(GamePanel.windowWidth / 2).setY(GamePanel.windowHeight / 2);
-
-
         registerSprites();
         System.out.println("Registered!");
     }

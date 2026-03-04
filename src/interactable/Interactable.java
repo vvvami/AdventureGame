@@ -1,26 +1,31 @@
 package interactable;
 
+import interactable.interactions.Collider;
+import main.GamePanel;
 import render.*;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public abstract class Interactable implements Renderable {
     private float x;
     private float y;
 
-    private Rectangle collider;
-    private boolean hasCollision;
+    private Collider collider;
+    private boolean hasCollision = false;
 
     private SpriteRenderer renderer;
+    public boolean isRendering;
     private SpriteType currentSprite;
     private ArrayList<SpriteType> spriteLayers = new ArrayList<>();
 
     private static ArrayList<Interactable> interactableList = new ArrayList<>();
 
+    private UUID ID;
+
     public Interactable() {
         this(0,0);
-
     }
 
     public Interactable(int x, int y) {
@@ -28,6 +33,7 @@ public abstract class Interactable implements Renderable {
         this.y = y;
         interactableList.add(this);
         renderer = new SpriteRenderer(this);
+        ID = UUID.randomUUID();
     }
 
     public float getX() {
@@ -117,7 +123,9 @@ public abstract class Interactable implements Renderable {
 
     @Override
     public void update() {
-
+        if (collider != null) {
+            collider.update(this);
+        }
     }
 
     @Override
@@ -126,9 +134,22 @@ public abstract class Interactable implements Renderable {
     }
 
     public static void renderInteractablesInList(Graphics2D graphics2D) {
+        ArrayList<Interactable> debugInteractables = new ArrayList<>();
         for (Interactable interactable : interactableList) {
             interactable.renderer.setGraphics2D(graphics2D);
             interactable.draw();
+            if (interactable.hasCollision()) {
+                debugInteractables.add(interactable);
+            }
+        }
+
+        for (Interactable interactable : debugInteractables) {
+                Rectangle debugBox = interactable.collider.getBox();
+                debugBox.x -= GamePanel.getCamPos().x;
+                debugBox.y -= GamePanel.getCamPos().y;
+                graphics2D.setColor(Color.white);
+                graphics2D.setStroke(new BasicStroke(4));
+                graphics2D.draw(debugBox);
         }
     }
 
@@ -147,11 +168,19 @@ public abstract class Interactable implements Renderable {
         return "";
     }
 
-    public Rectangle getCollider() {
+    public boolean hasCollision() {
+        return hasCollision && collider != null;
+    }
+
+    public void setCollision(boolean hasCollision) {
+        this.hasCollision = hasCollision;
+    }
+
+    public Collider getCollider() {
         return collider;
     }
 
-    public void setCollider(Rectangle collider) {
+    public void setCollider(Collider collider) {
         this.collider = collider;
     }
 
@@ -198,6 +227,15 @@ public abstract class Interactable implements Renderable {
 
     public void clearSpriteLayers() {
         spriteLayers.clear();
+    }
+
+    public static Interactable getInteractableAtPos(int x, int y) {
+        for (Interactable interactable : interactableList) {
+            if ((int) interactable.getX() == x && (int) interactable.getY() == y) {
+                return interactable;
+            }
+        }
+        return null;
     }
 
 }

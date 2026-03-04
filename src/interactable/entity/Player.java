@@ -1,7 +1,10 @@
 package interactable.entity;
 
+import interactable.interactions.Collider;
 import main.GamePanel;
 import util.KeyHandler;
+
+import java.awt.*;
 
 public class Player extends Entity {
     KeyHandler keyHandler;
@@ -9,11 +12,13 @@ public class Player extends Entity {
     public Player() {
         this.setSpeed(5.5f);
         this.keyHandler = GamePanel.keyHandler;
-
+        setCollision(true);
+        setCollider(new Collider(this, 24, 24));
     }
 
     @Override
     public void update() {
+        super.update();
         movementUpdate();
         GamePanel.createCamBounds(this.getX(), this.getY());
     }
@@ -28,12 +33,11 @@ public class Player extends Entity {
         if (KeyHandler.rightPressed) dx += 1;
 
         if (dx != 0 || dy != 0) {
-            double length = Math.sqrt(dx * dx + dy * dy);
-            double nx = dx / length;
-            double ny = dy / length;
+            float length = (float) Math.sqrt(dx * dx + dy * dy);
+            float nx = dx / length * getSpeed();
+            float ny = dy / length * getSpeed();
 
-            this.setX((float) (this.getX() + (nx * this.getSpeed())));
-            this.setY((float) (this.getY() + (ny * this.getSpeed())));
+            move(nx, ny);
             setCurrentSprite("player_down");
         } else {
             setCurrentSprite("player_down1");
@@ -42,26 +46,9 @@ public class Player extends Entity {
 
     @Override
     public void registerSprites() {
-        addSprite("player_neutral");
-        addSprite("player_sad");
-        addSprite("player_angry");
-        addSprite("player_happy");
         addSprite("player_down1");
         addSprite("player_down2");
         addSprite("player_down3");
-        addSprite("square");
-
-        addAnimatedSprite("player_sad_anim", 14)
-                .addFrame("player_neutral")
-                .addFrame("player_sad");
-
-        addAnimatedSprite("player_angry_anim", 12)
-                .addFrame("player_neutral")
-                .addFrame("player_angry");
-
-        addAnimatedSprite("player_happy_anim", 13)
-                .addFrame("player_neutral")
-                .addFrame("player_happy").scale(1.5f);
 
         addAnimatedSprite("player_down", 7)
                 .addFrame("player_down1")

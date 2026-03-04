@@ -45,7 +45,7 @@ public class SpriteRenderer {
         if (isOutOfBounds()) {
             return;
         }
-
+        interactable.isRendering = true;
         drawSpriteFromImage(
                 getImageFromPath(
                         sprite.getFilePath()), (int) interactable.getX(), (int) interactable.getY(), sprite.getScale());
@@ -107,15 +107,18 @@ public class SpriteRenderer {
 
     private boolean isOutOfBounds() {
         if (interactable instanceof Player) {return false;}
-
         Rectangle viewport = GamePanel.getViewport();
         Interactable i = interactable;
         int offs = 48;
 
-        return i.getX() < viewport.x - offs
+        if (i.getX() < viewport.x - offs
                 || i.getX() > viewport.x + viewport.width + offs
                 || i.getY() < viewport.y - offs
-                || i.getY() > viewport.y + viewport.height + offs;
+                || i.getY() > viewport.y + viewport.height + offs) {
+            interactable.isRendering = false;
+            return true;
+        }
+        return false;
     }
 
 }
