@@ -1,4 +1,4 @@
-package render;
+package render.sprite;
 
 import java.util.ArrayList;
 
@@ -8,6 +8,8 @@ public abstract class SpriteType {
     public SpriteType() {
         spriteList.add(this);
     }
+
+    public abstract Sprite get();
 
     public static ArrayList<SpriteType> getList() {
         return spriteList;

@@ -3,9 +3,10 @@ package interactable.entity;
 import interactable.interactions.Collider;
 
 public class Knight extends Entity {
-    public Knight() {
+    public Knight(float x, float y) {
+        super(x, y);
         setCollision(true);
-        setCollider(new Collider(this, 32, 32));
+        setCollider(new Collider(this,0.2, 0.2, 0.8, 1));
     }
 
     @Override

@@ -3,15 +3,19 @@ package main;
 import interactable.Interactable;
 import interactable.entity.Knight;
 import interactable.entity.Player;
+import interactable.tile.Platform;
 import interactable.tile.Tile;
+import render.light.Light;
+
+import java.awt.*;
 
 public class Registry {
 
     public static void register() {
         int i = 0;
         int j = 0;
-        while (i < GamePanel.windowWidth * 4) {
-            while (j < GamePanel.windowHeight * 4) {
+        while (i < Game.windowWidth * 4) {
+            while (j < Game.windowHeight * 4) {
                 Tile tile = new Tile(i,j);
                 j += 48;
             }
@@ -19,16 +23,13 @@ public class Registry {
             i += 48;
         }
 
-        Knight knight = new Knight();
+        Knight knight = new Knight(0, 0);
 
-        Player player = (Player) new Player().setX(GamePanel.windowWidth / 2).setY(GamePanel.windowHeight / 2);
-        registerSprites();
+
+        Player player = new Player((float) Game.windowWidth / 2, (float) Game.windowHeight / 2);
+
+        new Platform(player.getX(), player.getY() + 200);
+
         System.out.println("Registered!");
-    }
-
-    private static void registerSprites() {
-        for (Interactable interactable : Interactable.getList()) {
-            interactable.registerSprites();
-        }
     }
 }

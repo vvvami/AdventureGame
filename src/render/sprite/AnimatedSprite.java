@@ -1,4 +1,4 @@
-package render;
+package render.sprite;
 
 import java.util.ArrayList;
 
@@ -77,6 +77,11 @@ public class AnimatedSprite extends SpriteType {
 
     public ArrayList<Sprite> getSprites() {
         return sprites;
+    }
+
+    @Override
+    public Sprite get() {
+        return this.getSprites().get(getFrameIndex());
     }
 
     private void checkIfNameExists(String name) {

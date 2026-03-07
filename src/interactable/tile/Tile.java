@@ -11,8 +11,9 @@ public class Tile extends Interactable {
         super();
     }
 
-    public Tile(int x, int y) {
+    public Tile(float x, float y) {
         super(x, y);
+        this.setGravity(false);
     }
 
     @Override
@@ -29,10 +30,5 @@ public class Tile extends Interactable {
     public void registerSprites() {
         addSprite("floor");
         setSprite("floor");
-    }
-
-    @Override
-    public Collider getCollider() {
-        return null;
     }
 }

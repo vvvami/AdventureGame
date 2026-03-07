@@ -1,4 +1,4 @@
-package render;
+package render.sprite;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

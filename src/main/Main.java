@@ -1,29 +1,47 @@
 package main;
 
-import render.Sprite;
-
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class Main {
     public static void main(String[] args) {
-        JFrame mainWindow = new JFrame();
-        mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainWindow.setResizable(false);
-        mainWindow.setTitle("AdventureGame");
-        mainWindow.setForeground(Color.black);
+        JFrame frame = new JFrame("Game");
+        Game game = new Game();
+        frame.dispose();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setResizable(false);
+        frame.setForeground(Color.black);
+        frame.add(game);
+        frame.setLocationRelativeTo(null);
 
-        GamePanel.setGamePanel(new GamePanel());
-        mainWindow.add(GamePanel.getGamePanel());
-
-        mainWindow.pack();
-
-        mainWindow.setLocationRelativeTo(null);
-        mainWindow.setVisible(true);
-
+        // registering all game stuff
         Registry.register();
 
-        GamePanel.getGamePanel().startGameThread();
-    }
+        // config
+        File config = new File("config.txt");
+        if (config.exists()) {
+            game.getConfig().loadConfig();
+        } else {
+            game.getConfig().saveConfig();
+        }
 
+        if (game.fullscreen) {
+            GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+            DisplayMode dm = gd.getDisplayMode();
+            frame.setUndecorated(true);
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            frame.setLocation(0, 0);
+            frame.setSize(dm.getWidth(), dm.getHeight());
+        } else {
+            frame.setUndecorated(false);
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+        }
+        frame.validate();
+        frame.setVisible(true);
+
+        game.requestFocus();
+        game.startGameThread();
+    }
 }

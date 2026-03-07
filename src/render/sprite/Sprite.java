@@ -1,6 +1,6 @@
-package render;
+package render.sprite;
 
-import java.util.ArrayList;
+import main.Game;
 
 public class Sprite extends SpriteType {
     private String filePath;
@@ -46,5 +46,18 @@ public class Sprite extends SpriteType {
         int extensionIndex = filePath.lastIndexOf(".");
 
         return filePath.substring(nameIndex, extensionIndex);
+    }
+
+    public float getWidth() {
+        return SpriteRenderer.browse().get(filePath).getWidth() * scale * Game.scale;
+    }
+
+    public float getHeight() {
+        return SpriteRenderer.browse().get(filePath).getHeight() * scale * Game.scale;
+    }
+
+    @Override
+    public Sprite get() {
+        return this;
     }
 }

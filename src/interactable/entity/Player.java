@@ -1,26 +1,27 @@
 package interactable.entity;
 
 import interactable.interactions.Collider;
-import main.GamePanel;
+import main.Game;
+import render.light.Light;
 import util.KeyHandler;
 
 import java.awt.*;
 
 public class Player extends Entity {
     KeyHandler keyHandler;
-
-    public Player() {
+    public Player(float x, float y) {
+        super(x, y);
         this.setSpeed(5.5f);
-        this.keyHandler = GamePanel.keyHandler;
+        this.keyHandler = Game.keyHandler;
         setCollision(true);
-        setCollider(new Collider(this, 24, 24));
+        setCollider(new Collider(this, 0.3, 0.2, 0.7, 1));
     }
 
     @Override
     public void update() {
         super.update();
         movementUpdate();
-        GamePanel.createCamBounds(this.getX(), this.getY());
+        Game.createCamBounds(this.getX(), this.getY());
     }
 
     private void movementUpdate() {
@@ -34,11 +35,12 @@ public class Player extends Entity {
 
         if (dx != 0 || dy != 0) {
             float length = (float) Math.sqrt(dx * dx + dy * dy);
-            float nx = dx / length * getSpeed();
-            float ny = dy / length * getSpeed();
+            float nx = (dx / length) * getSpeed();
+            float ny = (dy / length) * getSpeed();
 
-            move(nx, ny);
-            setCurrentSprite("player_down");
+            if (move(nx, ny)) {
+                setCurrentSprite("player_down");
+            }
         } else {
             setCurrentSprite("player_down1");
         }

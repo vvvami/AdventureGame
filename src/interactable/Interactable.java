@@ -1,8 +1,12 @@
 package interactable;
 
 import interactable.interactions.Collider;
-import main.GamePanel;
 import render.*;
+import render.sprite.AnimatedSprite;
+import render.sprite.Sprite;
+import render.sprite.SpriteRenderer;
+import render.sprite.SpriteType;
+import world.World;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -12,8 +16,12 @@ public abstract class Interactable implements Renderable {
     private float x;
     private float y;
 
+    private float vx;
+    private float vy;
+
     private Collider collider;
     private boolean hasCollision = false;
+    private boolean hasGravity = true;
 
     private SpriteRenderer renderer;
     public boolean isRendering;
@@ -28,12 +36,55 @@ public abstract class Interactable implements Renderable {
         this(0,0);
     }
 
-    public Interactable(int x, int y) {
+    public Interactable(float x, float y) {
         this.x = x;
         this.y = y;
         interactableList.add(this);
         renderer = new SpriteRenderer(this);
         ID = UUID.randomUUID();
+        registerSprites();
+    }
+
+    @Override
+    public void draw() {
+        if (currentSprite instanceof AnimatedSprite) {
+            getRenderer().renderSpriteAnimation((AnimatedSprite) currentSprite);
+        } else {
+            getRenderer().renderSprite((Sprite) currentSprite);
+        }
+
+        for (SpriteType sprite : spriteLayers) {
+            if (sprite instanceof AnimatedSprite) {
+                getRenderer().renderSpriteAnimation((AnimatedSprite) sprite);
+            } else {
+                getRenderer().renderSprite((Sprite) sprite);
+            }
+        }
+    }
+
+
+    @Override
+    public void update() {
+        if (currentSprite instanceof AnimatedSprite animatedSprite) {
+            renderer.updateSpriteAnimation(animatedSprite);
+        }
+
+        if (this.hasGravity()) {
+            applyGravity();
+        }
+
+        if (collider != null) {
+            collider.update(this);
+
+        }
+    }
+
+    private void applyGravity() {
+        vy += World.getGravity();
+        vy = Math.min(vy, World.maxFallSpeed);
+        if (!move(0, vy)) {
+            vy = 0;
+        }
     }
 
     public float getX() {
@@ -42,6 +93,24 @@ public abstract class Interactable implements Renderable {
 
     public float getY() {
         return y;
+    }
+
+    public boolean move(float dx, float dy) {
+        if (this.collideable()) {
+            Rectangle futureCollider = this.getCollider().getBox();
+            futureCollider.x += (int) dx;
+            futureCollider.y += (int) dy;
+            for (Collider collider1 : Collider.getColliderList()) {
+                if (this.collider == collider1) continue;
+
+                if (futureCollider.intersects(collider1.getBox())) {
+                    return false;
+                }
+            }
+        }
+        setX(getX() + dx);
+        setY(getY() + dy);
+        return true;
     }
 
     public Interactable setY(float y) {
@@ -99,33 +168,12 @@ public abstract class Interactable implements Renderable {
         this.currentSprite = sprite;
     }
 
+    public Sprite getSprite() {
+        return currentSprite.get();
+    }
+
     public SpriteType getCurrentSprite() {
         return currentSprite;
-    }
-
-    @Override
-    public void draw() {
-        if (currentSprite instanceof AnimatedSprite) {
-            getRenderer().renderSpriteAnimation((AnimatedSprite) currentSprite);
-        } else {
-            getRenderer().renderSprite((Sprite) currentSprite);
-        }
-
-        for (SpriteType sprite : spriteLayers) {
-            if (sprite instanceof AnimatedSprite) {
-                getRenderer().renderSpriteAnimation((AnimatedSprite) sprite);
-            } else {
-                getRenderer().renderSprite((Sprite) sprite);
-            }
-        }
-    }
-
-
-    @Override
-    public void update() {
-        if (collider != null) {
-            collider.update(this);
-        }
     }
 
     @Override
@@ -134,22 +182,9 @@ public abstract class Interactable implements Renderable {
     }
 
     public static void renderInteractablesInList(Graphics2D graphics2D) {
-        ArrayList<Interactable> debugInteractables = new ArrayList<>();
         for (Interactable interactable : interactableList) {
             interactable.renderer.setGraphics2D(graphics2D);
             interactable.draw();
-            if (interactable.hasCollision()) {
-                debugInteractables.add(interactable);
-            }
-        }
-
-        for (Interactable interactable : debugInteractables) {
-                Rectangle debugBox = interactable.collider.getBox();
-                debugBox.x -= GamePanel.getCamPos().x;
-                debugBox.y -= GamePanel.getCamPos().y;
-                graphics2D.setColor(Color.white);
-                graphics2D.setStroke(new BasicStroke(4));
-                graphics2D.draw(debugBox);
         }
     }
 
@@ -168,8 +203,24 @@ public abstract class Interactable implements Renderable {
         return "";
     }
 
+    public void setGravity(boolean hasGravity) {
+        this.hasGravity = hasGravity;
+    }
+
+    public boolean hasGravity() {
+        return hasGravity;
+    }
+
     public boolean hasCollision() {
-        return hasCollision && collider != null;
+        return hasCollision;
+    }
+
+    public boolean hasCollider() {
+        return collider != null;
+    }
+
+    public boolean collideable() {
+        return hasCollision() && hasCollider();
     }
 
     public void setCollision(boolean hasCollision) {
@@ -182,6 +233,14 @@ public abstract class Interactable implements Renderable {
 
     public void setCollider(Collider collider) {
         this.collider = collider;
+    }
+
+    public float width() {
+        return getCollider().getWidth();
+    }
+
+    public float height() {
+        return getCollider().getHeight();
     }
 
     public ArrayList<SpriteType> getSpriteLayers() {

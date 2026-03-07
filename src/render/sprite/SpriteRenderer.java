@@ -1,15 +1,12 @@
-package render;
+package render.sprite;
 
 import interactable.Interactable;
 import interactable.entity.Player;
-import main.GamePanel;
+import main.Game;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 
 public class SpriteRenderer {
     private Graphics2D graphics2D;
@@ -19,7 +16,7 @@ public class SpriteRenderer {
     public static final String assetPath = "/assets/sprites/";
     public static final String spriteFileType = ".png";
 
-    private SpriteManager spriteManager = new SpriteManager();
+    private static SpriteManager spriteManager = new SpriteManager();
 
     public SpriteRenderer() {
 
@@ -61,19 +58,25 @@ public class SpriteRenderer {
             return;
         }
 
-        Sprite nextSprite = animatedSprite.getSprites().get(animatedSprite.getFrameIndex());
+        Sprite currentSprite = animatedSprite.getSprites().get(animatedSprite.getFrameIndex());
+        this.renderSprite(currentSprite);
+    }
+
+    public void updateSpriteAnimation(AnimatedSprite animatedSprite) {
+        if (animatedSprite == null) {
+            return;
+        }
 
         animatedSprite.setFrameCounter(animatedSprite.getFrameCounter() + 1);
 
-        if (animatedSprite.getSpeed() == animatedSprite.getFrameCounter()) {
-            animatedSprite.setFrameIndex(animatedSprite.getFrameIndex() + 1);
+        if (animatedSprite.getFrameCounter() >= animatedSprite.getSpeed()) {
             animatedSprite.setFrameCounter(0);
-        }
+            animatedSprite.setFrameIndex(animatedSprite.getFrameIndex() + 1);
 
-        if (animatedSprite.getFrameIndex() == animatedSprite.getSprites().size()) {
-            animatedSprite.setFrameIndex(0);
+            if (animatedSprite.getFrameIndex() >= animatedSprite.getSprites().size()) {
+                animatedSprite.setFrameIndex(0);
+            }
         }
-        this.renderSprite(nextSprite);
     }
 
     private void drawSpriteFromImage(BufferedImage image, int x, int y, float scale) {
@@ -81,19 +84,19 @@ public class SpriteRenderer {
         float posX = centerSpritePositionWithScale(x, scale);
         float posY = centerSpritePositionWithScale(y, scale);
 
-        // translate render position with cam position
+        /*translate render position with cam position
         posX -= GamePanel.getCamPos().x;
-        posY -= GamePanel.getCamPos().y;
+        posY -= GamePanel.getCamPos().y;*/
 
         // draw the sprite
         AffineTransform transform = new AffineTransform();
         transform.translate(posX, posY);
-        transform.scale(GamePanel.tileSize * scale / 16, GamePanel.tileSize * scale / 16);
+        transform.scale(Game.scale * scale, Game.scale * scale);
         graphics2D.drawImage(image, transform, null);
     }
 
     private float centerSpritePositionWithScale(float pos, float scale) {
-        pos -= (GamePanel.tileSize * scale / 2);
+        pos -= (Game.tileSize * scale / 2);
         return pos;
     }
 
@@ -107,7 +110,7 @@ public class SpriteRenderer {
 
     private boolean isOutOfBounds() {
         if (interactable instanceof Player) {return false;}
-        Rectangle viewport = GamePanel.getViewport();
+        Rectangle viewport = Game.getViewport();
         Interactable i = interactable;
         int offs = 48;
 
@@ -119,6 +122,10 @@ public class SpriteRenderer {
             return true;
         }
         return false;
+    }
+
+    public static SpriteManager browse() {
+        return spriteManager;
     }
 
 }
