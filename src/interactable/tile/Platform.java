@@ -7,6 +7,7 @@ public class Platform extends Tile {
         super(x, y);
         setCollider(new Collider(this, 0, 0.3, 1, 0.7));
         setCollision(true);
+        setFriction(0.5f);
     }
 
     @Override

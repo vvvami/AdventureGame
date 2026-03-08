@@ -1,7 +1,7 @@
 package world;
 
 public class World {
-    private static float gravity = 0.1f;
+    private static float gravity = 0.3f;
     public static final float maxFallSpeed = 15f;
     private static float time;
 

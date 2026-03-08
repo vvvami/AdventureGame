@@ -16,7 +16,7 @@ public class SpriteRenderer {
     public static final String assetPath = "/assets/sprites/";
     public static final String spriteFileType = ".png";
 
-    private static SpriteManager spriteManager = new SpriteManager();
+    private static final SpriteManager spriteManager = new SpriteManager();
 
     public SpriteRenderer() {
 
@@ -118,8 +118,7 @@ public class SpriteRenderer {
                 || i.getX() > viewport.x + viewport.width + offs
                 || i.getY() < viewport.y - offs
                 || i.getY() > viewport.y + viewport.height + offs) {
-            interactable.isRendering = false;
-            return true;
+            interactable.isRendering = false;return true;
         }
         return false;
     }

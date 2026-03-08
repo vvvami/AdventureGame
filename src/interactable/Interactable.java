@@ -1,14 +1,13 @@
 package interactable;
 
 import interactable.interactions.Collider;
+import interactable.tile.Tile;
 import render.*;
-import render.sprite.AnimatedSprite;
-import render.sprite.Sprite;
-import render.sprite.SpriteRenderer;
-import render.sprite.SpriteType;
+import render.sprite.*;
 import world.World;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -22,6 +21,7 @@ public abstract class Interactable implements Renderable {
     private Collider collider;
     private boolean hasCollision = false;
     private boolean hasGravity = true;
+    private boolean isGrounded = false;
 
     private SpriteRenderer renderer;
     public boolean isRendering;
@@ -69,22 +69,20 @@ public abstract class Interactable implements Renderable {
             renderer.updateSpriteAnimation(animatedSprite);
         }
 
+        if (collider != null) {
+            collider.update(this);
+        }
+
         if (this.hasGravity()) {
             applyGravity();
         }
 
-        if (collider != null) {
-            collider.update(this);
-
-        }
     }
 
     private void applyGravity() {
-        vy += World.getGravity();
-        vy = Math.min(vy, World.maxFallSpeed);
-        if (!move(0, vy)) {
-            vy = 0;
-        }
+        if (isGrounded) return;
+        vy = Math.min(vy + World.getGravity(), World.maxFallSpeed);
+        move(0, vy);
     }
 
     public float getX() {
@@ -95,22 +93,53 @@ public abstract class Interactable implements Renderable {
         return y;
     }
 
-    public boolean move(float dx, float dy) {
+    public float vx() {
+        return vx;
+    }
+
+    public float vy() {
+        return vy;
+    }
+
+    public void vx(float v) {
+        this.vx = v;
+    }
+
+    public void vy(float v) {
+        this.vy = v;
+    }
+
+    public void move(float dx, float dy) {
+        if (dx == 0 && dy == 0) return;
+
         if (this.collideable()) {
+            int dx1 = Math.round(dx);
+            int dy1 = Math.round(dy);
             Rectangle futureCollider = this.getCollider().getBox();
-            futureCollider.x += (int) dx;
-            futureCollider.y += (int) dy;
-            for (Collider collider1 : Collider.getColliderList()) {
+            for (Collider collider1 : Collider.list()) {
                 if (this.collider == collider1) continue;
 
+                futureCollider.x += dx1;
+                if (isGrounded()) futureCollider.y -= 1;
                 if (futureCollider.intersects(collider1.getBox())) {
-                    return false;
+                    dx = 0;
+                    vx = 0;
                 }
+                if (isGrounded()) futureCollider.y += 1;
+                futureCollider.x -= dx1;
+
+                futureCollider.y += dy1;
+                if (futureCollider.intersects(collider1.getBox())) {
+                    dy = 0;
+                    vy = 0;
+                }
+                futureCollider.y -= dy1;
             }
         }
+        vx = dx != 0 ? dx : vx;
+        vy = dy != 0 ? dy : vy;
         setX(getX() + dx);
         setY(getY() + dy);
-        return true;
     }
 
     public Interactable setY(float y) {
@@ -121,6 +150,26 @@ public abstract class Interactable implements Renderable {
     public Interactable setX(float x) {
         this.x = x;
         return this;
+    }
+
+    public boolean isGrounded() {
+        Rectangle box = getCollider().getBox();
+
+        Rectangle feet = new Rectangle(box.x, box.y + box.height, box.width, 2);
+
+        for (Interactable itrc : Interactable.list()) {
+            if (!itrc.collideable()) continue;
+            if (itrc == this) continue;
+
+            if (itrc.getCollider().getBox().intersects(feet)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void setGrounded(boolean grounded) {
+        isGrounded = grounded;
     }
 
     public SpriteRenderer getRenderer() {
@@ -195,7 +244,7 @@ public abstract class Interactable implements Renderable {
         }
     }
 
-    public static ArrayList<Interactable> getList() {
+    public static ArrayList<Interactable> list() {
         return interactableList;
     }
 
@@ -289,8 +338,9 @@ public abstract class Interactable implements Renderable {
     }
 
     public static Interactable getInteractableAtPos(int x, int y) {
-        for (Interactable interactable : interactableList) {
-            if ((int) interactable.getX() == x && (int) interactable.getY() == y) {
+        for (Interactable interactable : Interactable.list()) {
+            if (interactable.collider != null
+                    && interactable.getCollider().getBox().contains(x, y)) {
                 return interactable;
             }
         }

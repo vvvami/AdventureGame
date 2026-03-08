@@ -5,7 +5,9 @@ import interactable.interactions.Collider;
 
 import java.awt.*;
 
-public class Tile extends Interactable {
+public abstract class Tile extends Interactable {
+
+    float friction = 1f;
 
     public Tile() {
         super();
@@ -28,7 +30,13 @@ public class Tile extends Interactable {
 
     @Override
     public void registerSprites() {
-        addSprite("floor");
-        setSprite("floor");
+    }
+
+    public void setFriction(float friction) {
+        this.friction = friction;
+    }
+
+    public float getFriction() {
+        return friction;
     }
 }

@@ -2,13 +2,14 @@ package interactable.entity;
 
 import interactable.interactions.Collider;
 import main.Game;
-import render.light.Light;
 import util.KeyHandler;
-
-import java.awt.*;
 
 public class Player extends Entity {
     KeyHandler keyHandler;
+    private int jumps = 0;
+    private int maxJumps = 2;
+    private boolean lastJumpKeyState = false;
+
     public Player(float x, float y) {
         super(x, y);
         this.setSpeed(5.5f);
@@ -25,10 +26,19 @@ public class Player extends Entity {
     }
 
     private void movementUpdate() {
+        if (isGrounded()) {
+            jumps = 0;
+        }
+
         int dx = 0;
         int dy = 0;
 
-        if (KeyHandler.upPressed) dy -= 1;
+        if (KeyHandler.upPressed && !lastJumpKeyState && jumps < maxJumps) {
+            dy -= 1;
+            jumps++;
+        }
+        lastJumpKeyState = KeyHandler.upPressed;
+
         if (KeyHandler.downPressed) dy += 1;
         if (KeyHandler.leftPressed) dx -= 1;
         if (KeyHandler.rightPressed) dx += 1;
@@ -38,7 +48,9 @@ public class Player extends Entity {
             float nx = (dx / length) * getSpeed();
             float ny = (dy / length) * getSpeed();
 
-            if (move(nx, ny)) {
+            move(nx, ny);
+
+            if (nx != 0) {
                 setCurrentSprite("player_down");
             }
         } else {

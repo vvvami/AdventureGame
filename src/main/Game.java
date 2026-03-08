@@ -145,7 +145,7 @@ public class Game extends Canvas implements Runnable {
                 // debug
                 if (debug) {
                     g2.setStroke(DEBUG_STROKE);
-                    for (Interactable interactable : Interactable.getList()) {
+                    for (Interactable interactable : Interactable.list()) {
                         if (interactable.collideable() && interactable.isRendering) {
                             g2.setColor(Color.white);
                             g2.draw(interactable.getCollider().getBox());

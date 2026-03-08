@@ -84,7 +84,7 @@ public class Collider {
         return this.collisionBox.intersects(collider.collisionBox);
     }
 
-    public static ArrayList<Collider> getColliderList() {
+    public static ArrayList<Collider> list() {
         return colliderList;
     }
 
