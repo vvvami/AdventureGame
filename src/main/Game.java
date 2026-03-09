@@ -1,10 +1,14 @@
 package main;
 
 import interactable.Interactable;
+import interactable.entity.Player;
+import render.light.Light;
 import util.KeyHandler;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 
@@ -25,9 +29,13 @@ public class Game extends Canvas implements Runnable {
     private static final Point cameraPos = new Point(0, 0);
     private static Rectangle camBounds;
 
-    // Backbuffer
-    private final BufferedImage backBuffer =
-            new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_ARGB);
+    // light
+    private static final double LIGHT_SCALE = 0.125;
+    private static final int AMBIENT_ALPHA = 210;
+    private BufferedImage lightingBuffer;
+    private int lightingW = -1;
+    private int lightingH = -1;
+    private final Light playerLight = new Light(0, 0, 140, 0.5f, Color.red);
 
     // update fps
     public final int updateFPS = 60;
@@ -115,6 +123,8 @@ public class Game extends Canvas implements Runnable {
     private void render(BufferStrategy bs) {
         do {
             Graphics2D g2 = (Graphics2D) bs.getDrawGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             try {
                 // clear screen
                 g2.setColor(Color.BLACK);
@@ -137,6 +147,7 @@ public class Game extends Canvas implements Runnable {
                 g2.translate(offsetX, offsetY);
                 g2.scale(scale, scale);
                 g2.setClip(0, 0, windowWidth, windowHeight);
+                AffineTransform viewportTx = g2.getTransform();
 
                 // interactables
                 g2.translate(-cameraPos.x, -cameraPos.y);
@@ -161,6 +172,13 @@ public class Game extends Canvas implements Runnable {
                         }
                     }
                 }
+
+                g2.setTransform(viewportTx);
+
+                playerLight.x = Player.list().getFirst().getX();
+                playerLight.y = Player.list().getFirst().getY();
+                renderLightingBuffer(windowWidth, windowHeight);
+                g2.drawImage(lightingBuffer, 0, 0, windowWidth, windowHeight, null);
 
                 // transform to old
                 g2.setTransform(oldTx);
@@ -203,6 +221,90 @@ public class Game extends Canvas implements Runnable {
 
     public static Rectangle getViewport() {
         return new Rectangle(cameraPos.x, cameraPos.y, windowWidth, windowHeight);
+    }
+
+    // lighting
+    private void ensureLightingBuffer(int viewW, int viewH) {
+        int lw = Math.max(1, (int)Math.ceil(viewW * LIGHT_SCALE));
+        int lh = Math.max(1, (int)Math.ceil(viewH * LIGHT_SCALE));
+
+        if (lightingBuffer == null || lw != lightingW || lh != lightingH) {
+            lightingBuffer = new BufferedImage(lw, lh, BufferedImage.TYPE_INT_ARGB);
+            lightingW = lw;
+            lightingH = lh;
+        }
+    }
+
+    private void renderLightingBuffer(int viewW, int viewH) {
+        ensureLightingBuffer(viewW, viewH);
+
+        Graphics2D lg = lightingBuffer.createGraphics();
+        try {
+            lg.setComposite(AlphaComposite.Src);
+            lg.setColor(new Color(8, 12, 24, AMBIENT_ALPHA));
+            lg.fillRect(0, 0, lightingW, lightingH);
+
+            for (Light light : Light.list()) {
+                if (light.enabled) {
+                    drawLight(lg, light, viewW, viewH);
+                }
+            }
+
+            if (playerLight.enabled) {
+                drawLight(lg, playerLight, viewW, viewH);
+            }
+
+        } finally {
+            lg.dispose();
+        }
+    }
+
+    private void drawLight(Graphics2D lg, Light light, int viewW, int viewH) {
+        double vx = light.x - cameraPos.x;
+        double vy = light.y - cameraPos.y;
+
+        // cull in viewport space
+        if (vx + light.radius < 0 ||
+                vy + light.radius < 0 ||
+                vx - light.radius > viewW ||
+                vy - light.radius > viewH) {
+            return;
+        }
+
+        float cx = (float)(vx * LIGHT_SCALE);
+        float cy = (float)(vy * LIGHT_SCALE);
+
+        float holeR = Math.max(1f, (float)(light.radius * LIGHT_SCALE));
+        float glowR = holeR * 1.25f;
+
+        // 1) cut a hole in darkness
+        lg.setComposite(AlphaComposite.DstOut);
+        lg.setPaint(new RadialGradientPaint(
+                new Point2D.Float(cx, cy),
+                holeR,
+                new float[] {0f, 0.5f, 1f},
+                new Color[] {
+                        new Color(0, 0, 0, (int)(255 * light.strength)),
+                        new Color(0, 0, 0, (int)(160 * light.strength)),
+                        new Color(0, 0, 0, 0)
+                }
+        ));
+        lg.fill(new Ellipse2D.Float(cx - holeR, cy - holeR, holeR * 2f, holeR * 2f));
+
+        // 2) add colored glow
+        Color c = light.color;
+        lg.setComposite(AlphaComposite.SrcOver);
+        lg.setPaint(new RadialGradientPaint(
+                new Point2D.Float(cx, cy),
+                glowR,
+                new float[] {0f, 0.35f, 1f},
+                new Color[] {
+                        new Color(c.getRed(), c.getGreen(), c.getBlue(), (int)(120 * light.strength)),
+                        new Color(c.getRed(), c.getGreen(), c.getBlue(), (int)(50 * light.strength)),
+                        new Color(c.getRed(), c.getGreen(), c.getBlue(), 0)
+                }
+        ));
+        lg.fill(new Ellipse2D.Float(cx - glowR, cy - glowR, glowR * 2f, glowR * 2f));
     }
 
     public Config getConfig() { return config; }

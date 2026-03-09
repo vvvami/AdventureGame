@@ -4,6 +4,7 @@ import interactable.Interactable;
 import render.sprite.Sprite;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 public class Collider {

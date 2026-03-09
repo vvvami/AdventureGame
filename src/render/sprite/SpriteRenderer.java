@@ -118,7 +118,8 @@ public class SpriteRenderer {
                 || i.getX() > viewport.x + viewport.width + offs
                 || i.getY() < viewport.y - offs
                 || i.getY() > viewport.y + viewport.height + offs) {
-            interactable.isRendering = false;return true;
+            interactable.isRendering = false;
+            return true;
         }
         return false;
     }

@@ -5,7 +5,6 @@ import interactable.entity.Knight;
 import interactable.entity.Player;
 import interactable.tile.Platform;
 import interactable.tile.Tile;
-import render.light.Light;
 
 import java.awt.*;
 
