@@ -1,12 +1,14 @@
 package util;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 public class AABB {
-    float x;
-    float y;
-    float width;
-    float height;
+    public float x;
+    public float y;
+    public float width;
+    public float height;
 
     public AABB(float x, float y, float width, float height) {
         this.x = x;
@@ -26,27 +28,31 @@ public class AABB {
         this(0, 0, width, height);
     }
 
-    public boolean intersects(AABB r) {
-        float tw = this.width;
-        float th = this.height;
-        float rw = r.width;
-        float rh = r.height;
-        if (rw <= 0 || rh <= 0 || tw <= 0 || th <= 0) {
-            return false;
-        }
-        float tx = this.x;
-        float ty = this.y;
-        float rx = r.x;
-        float ry = r.y;
-        rw += rx;
-        rh += ry;
-        tw += tx;
-        th += ty;
-        //      overflow || intersect
-        return ((rw < rx || rw > tx) &&
-                (rh < ry || rh > ty) &&
-                (tw < tx || tw > rx) &&
-                (th < ty || th > ry));
+    public float getHeight() {
+        return height;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public Rectangle2D.Float toRect() {
+        return new Rectangle2D.Float(this.x, this.y, this.width, this.height);
+    }
+
+    public boolean intersects(AABB o) {
+        return this.x < o.x + o.width  &&
+                this.x + this.width > o.x &&
+                this.y < o.y + o.height &&
+                this.y + this.height > o.y;
     }
 
     public void grow(float h, float v) {
@@ -109,4 +115,63 @@ public class AABB {
         this.height = height;
     }
 
+    public boolean inside(Point p) {
+        return inside(p.x, p.y);
+    }
+
+    public boolean inside(Point2D.Float p) {
+        return inside(p.x, p.y);
+    }
+
+    public boolean inside(float X, float Y) {
+        float w = this.width;
+        float h = this.height;
+        if (w < 0 || h < 0) {
+            // At least one of the dimensions is negative...
+            return false;
+        }
+        // Note: if either dimension is zero, tests below must return false...
+        float x = this.x;
+        float y = this.y;
+        if (X < x || Y < y) {
+            return false;
+        }
+        w += x;
+        h += y;
+        //    overflow || intersect
+        return ((w < x || w > X) &&
+                (h < y || h > Y));
+    }
+
+    public AABB copy() {
+        return new AABB(this.x, this.y, this.width, this.height);
+    }
+
+    public AABB intersection(AABB r) {
+        float tx1 = this.x;
+        float ty1 = this.y;
+        float rx1 = r.x;
+        float ry1 = r.y;
+        float tx2 = tx1; tx2 += this.width;
+        float ty2 = ty1; ty2 += this.height;
+        float rx2 = rx1; rx2 += r.width;
+        float ry2 = ry1; ry2 += r.height;
+        if (tx1 < rx1) tx1 = rx1;
+        if (ty1 < ry1) ty1 = ry1;
+        if (tx2 > rx2) tx2 = rx2;
+        if (ty2 > ry2) ty2 = ry2;
+        tx2 -= tx1;
+        ty2 -= ty1;
+        // tx2,ty2 will never overflow (they will never be
+        // larger than the smallest of the two source w,h)
+        // they might underflow, though...
+        if (tx2 < Float.MIN_VALUE) tx2 = Float.MIN_VALUE;
+        if (ty2 < Float.MIN_VALUE) ty2 = Float.MIN_VALUE;
+        return new AABB(tx1, ty1, tx2, ty2);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[x=" + x + ",y=" + y + ",width=" + width + ",height=" + height + "]";
+    }
 }

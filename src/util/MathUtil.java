@@ -5,8 +5,8 @@ public class MathUtil {
         return (float) Math.sqrt(sqr(x2 - x1) + sqr(y2 - y1));
     }
 
-    public static double dist(double num1, double num2) {
-        return Math.abs(num1 - num2);
+    public static float dist(double num1, double num2) {
+        return (float) Math.abs(num1 - num2);
     }
 
     public static double sqr(double num) {

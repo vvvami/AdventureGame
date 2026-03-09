@@ -18,8 +18,8 @@ public class SpriteRenderer {
 
     private static final SpriteManager spriteManager = new SpriteManager();
 
-    public SpriteRenderer() {
-
+    public SpriteRenderer(Graphics2D graphics2D) {
+        this.graphics2D = graphics2D;
     }
 
     public SpriteRenderer(Interactable interactable) {
@@ -29,6 +29,10 @@ public class SpriteRenderer {
     public void renderSprite(String name) {
         Sprite sprite = Sprite.getSpriteFromName(name);
         renderSprite(sprite);
+    }
+
+    public void renderShape(Shape shape) {
+        graphics2D.draw(shape);
     }
 
     public void renderSprite(Sprite sprite, float x, float y) {

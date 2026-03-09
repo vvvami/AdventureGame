@@ -9,6 +9,7 @@ import interactable.tile.Tile;
 import java.awt.*;
 
 public class Registry {
+    public static Player player;
 
     public static void register() {
 //        int i = 0;
@@ -24,7 +25,7 @@ public class Registry {
 
 
 
-        Player player = new Player((float) Game.windowWidth / 2, (float) Game.windowHeight / 2);
+        player = new Player((float) Game.windowWidth / 2, (float) Game.windowHeight / 2);
         Knight knight = new Knight(player.getX() + 60, player.getY());
 
 

@@ -26,7 +26,7 @@ public class Player extends Entity {
     }
 
     private void movementUpdate() {
-        if (isGrounded()) {
+        if (isGrounded) {
             jumps = 0;
         }
 
@@ -39,7 +39,7 @@ public class Player extends Entity {
         }
         lastJumpKeyState = KeyHandler.upPressed;
 
-        if (KeyHandler.downPressed) dy += 1;
+        if (KeyHandler.downPressed && !isGrounded) dy += 1;
         if (KeyHandler.leftPressed) dx -= 1;
         if (KeyHandler.rightPressed) dx += 1;
 

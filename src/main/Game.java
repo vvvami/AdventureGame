@@ -3,6 +3,7 @@ package main;
 import interactable.Interactable;
 import interactable.entity.Player;
 import render.light.Light;
+import util.AABB;
 import util.KeyHandler;
 
 import java.awt.*;
@@ -153,26 +154,6 @@ public class Game extends Canvas implements Runnable {
                 g2.translate(-cameraPos.x, -cameraPos.y);
                 Interactable.renderInteractablesInList(g2);
 
-                // debug
-                if (debug) {
-                    g2.setStroke(DEBUG_STROKE);
-                    for (Interactable interactable : Interactable.list()) {
-                        if (interactable.collideable() && interactable.isRendering) {
-                            g2.setColor(Color.white);
-                            g2.draw(interactable.getCollider().getBox());
-
-                            int spriteWidth = (int) interactable.getSprite().getWidth();
-                            int spriteHeight = (int) interactable.getSprite().getHeight();
-
-                            Rectangle rectangle = new Rectangle((int) interactable.getX() - (spriteWidth / 2),
-                                    (int) interactable.getY() - (spriteHeight / 2),
-                                    spriteWidth, spriteHeight);
-                            g2.setColor(Color.yellow);
-                            g2.draw(rectangle);
-                        }
-                    }
-                }
-
                 g2.setTransform(viewportTx);
 
                 playerLight.x = Player.list().getFirst().getX();
@@ -183,12 +164,43 @@ public class Game extends Canvas implements Runnable {
                 // transform to old
                 g2.setTransform(oldTx);
                 g2.setClip(null);
-
-                // ui
                 g2.setComposite(AlphaComposite.SrcOver);
+
+                // debug
+                if (debug) {
+                    g2.setStroke(DEBUG_STROKE);
+                    for (Interactable interactable : Interactable.list()) {
+                        if (interactable.isRendering && interactable.getCollider() != null) {
+                            g2.setColor(Color.white);
+                            g2.draw(interactable.getCollider().getBox().toRect());
+
+                            float spriteWidth = interactable.getSprite().getWidth();
+                            float spriteHeight = interactable.getSprite().getHeight();
+
+                            AABB rectangle = new AABB(interactable.getX() - (spriteWidth / 2),
+                                    interactable.getY() - (spriteHeight / 2),
+                                    spriteWidth, spriteHeight);
+                            g2.setColor(Color.blue);
+                            g2.draw(rectangle.toRect());
+
+                            if (interactable.futColliderDebug != null) {
+                                g2.setColor(Color.red);
+                                g2.draw(interactable.futColliderDebug);
+                            }
+
+                            if (interactable.intersectDebug != null) {
+                                g2.setColor(Color.green);
+                                g2.draw(interactable.intersectDebug);
+                            }
+                        }
+                    }
+                }
+                // ui
                 g2.setColor(Color.WHITE);
                 g2.setFont(UI_FONT);
                 g2.drawString("FPS: " + fpsDisplay, 10, 30);
+                g2.drawString("X: " + Registry.player.getX(), 10, 60);
+                g2.drawString("Y: " + Registry.player.getY(), 10, 90);
 
             } finally {
                 g2.dispose();

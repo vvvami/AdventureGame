@@ -1,13 +1,13 @@
 package interactable;
 
 import interactable.interactions.Collider;
-import interactable.tile.Tile;
 import render.*;
 import render.sprite.*;
+import util.AABB;
 import world.World;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -20,8 +20,12 @@ public abstract class Interactable implements Renderable {
 
     private Collider collider;
     private boolean hasCollision = false;
+
+    public Rectangle2D.Float intersectDebug; // test for intersect between two colliding mfers
+    public Rectangle2D.Float futColliderDebug;
+
     private boolean hasGravity = true;
-    private boolean isGrounded = false;
+    public boolean isGrounded = false;
 
     private SpriteRenderer renderer;
     public boolean isRendering;
@@ -77,6 +81,8 @@ public abstract class Interactable implements Renderable {
             applyGravity();
         }
 
+        isGrounded = isGrounded();
+
     }
 
     private void applyGravity() {
@@ -111,31 +117,40 @@ public abstract class Interactable implements Renderable {
 
     public void move(float dx, float dy) {
         if (dx == 0 && dy == 0) return;
+        AABB selfCollider = this.getCollider().getBox();
+        float dx1 = dx;
+        float dy1 = dy;
+        AABB insctX = new AABB(0,0);
+        AABB insctY = new AABB(0,0);
+        boolean collidedX = false;
+        boolean collidedY = false;
 
         if (this.collideable()) {
-            int dx1 = Math.round(dx);
-            int dy1 = Math.round(dy);
-            Rectangle futureCollider = this.getCollider().getBox();
+            AABB futureCollider = selfCollider.copy();
             for (Collider collider1 : Collider.list()) {
                 if (this.collider == collider1) continue;
 
                 futureCollider.x += dx1;
-                if (isGrounded()) futureCollider.y -= 1;
                 if (futureCollider.intersects(collider1.getBox())) {
+                    insctX = selfCollider.intersection(collider1.getBox());
+                    this.intersectDebug = insctX.toRect();
+                    collidedX = true;
                     dx = 0;
                     vx = 0;
                 }
-                if (isGrounded()) futureCollider.y += 1;
-                futureCollider.x -= dx1;
 
                 futureCollider.y += dy1;
                 if (futureCollider.intersects(collider1.getBox())) {
+                    insctY = selfCollider.intersection(collider1.getBox());
+                    this.intersectDebug = insctX.toRect();
+                    collidedY = true;
                     dy = 0;
                     vy = 0;
                 }
-                futureCollider.y -= dy1;
             }
+            this.futColliderDebug = futureCollider.toRect();
         }
+
         vx = dx != 0 ? dx : vx;
         vy = dy != 0 ? dy : vy;
         setX(getX() + dx);
@@ -152,10 +167,10 @@ public abstract class Interactable implements Renderable {
         return this;
     }
 
-    public boolean isGrounded() {
-        Rectangle box = getCollider().getBox();
+    private boolean isGrounded() {
+        AABB box = getCollider().getBox();
 
-        Rectangle feet = new Rectangle(box.x, box.y + box.height, box.width, 2);
+        AABB feet = new AABB(box.x, box.y + box.height, box.width, 2);
 
         for (Interactable itrc : Interactable.list()) {
             if (!itrc.collideable()) continue;
@@ -340,7 +355,7 @@ public abstract class Interactable implements Renderable {
     public static Interactable getInteractableAtPos(int x, int y) {
         for (Interactable interactable : Interactable.list()) {
             if (interactable.collider != null
-                    && interactable.getCollider().getBox().contains(x, y)) {
+                    && interactable.getCollider().getBox().inside(x, y)) {
                 return interactable;
             }
         }

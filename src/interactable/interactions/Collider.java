@@ -2,6 +2,7 @@ package interactable.interactions;
 
 import interactable.Interactable;
 import render.sprite.Sprite;
+import util.AABB;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -13,7 +14,7 @@ public class Collider {
     private double right = 1;
     private double bottom = 1;
 
-    private Rectangle collisionBox;
+    private AABB collisionBox;
 
     private static ArrayList<Collider> colliderList = new ArrayList<>();
 
@@ -22,9 +23,12 @@ public class Collider {
         this.top = top;
         this.right = right;
         this.bottom = bottom;
-        collisionBox = new Rectangle((int) interactable.getX(), (int) interactable.getY(),
-                (int) interactable.getSprite().getWidth(),
-                (int) interactable.getSprite().getHeight());
+        collisionBox = new AABB(
+                interactable.getX(),
+                interactable.getY(),
+                interactable.getSprite().getWidth(),
+                interactable.getSprite().getHeight());
+
         update(interactable);
         colliderList.add(this);
     }
@@ -34,50 +38,50 @@ public class Collider {
         update(interactable);
     }
 
-    public Rectangle getBox() {
+    public AABB getBox() {
         return collisionBox;
     }
 
-    public int getWidth() {
+    public float getWidth() {
         return collisionBox.width;
     }
-    public int getHeight() {
+    public float getHeight() {
         return collisionBox.height;
     }
 
-    public int getX() {
+    public float getX() {
         return collisionBox.x;
     }
 
-    public int getY() {
+    public float getY() {
         return collisionBox.y;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         collisionBox.x = x;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         collisionBox.y = y;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(float width) {
         collisionBox.width = width;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(float height) {
         collisionBox.height = height;
     }
 
-    public void setBox(Rectangle collisionBox) {
+    public void setBox(AABB collisionBox) {
         this.collisionBox = collisionBox;
     }
 
-    public void grow(int width, int height) {
+    public void grow(float width, float height) {
         this.collisionBox.grow(width, height);
     }
 
-    public void grow(int amount) {
+    public void grow(float amount) {
         this.collisionBox.grow(amount, amount);
     }
 
@@ -91,9 +95,9 @@ public class Collider {
 
     public void update(Interactable interactable) {
         Sprite sprite = interactable.getSprite();
-        this.collisionBox.x = (int) (interactable.getX() + sprite.getWidth() * left  - (float) sprite.getWidth() / 2);
-        this.collisionBox.y = (int) (interactable.getY() + sprite.getHeight() * top  - (float) sprite.getHeight() / 2);
-        this.collisionBox.width = (int) (sprite.getWidth() * (right - left));
-        this.collisionBox.height = (int) (sprite.getHeight() * (bottom - top));
+        this.collisionBox.x = (float) (interactable.getX() + sprite.getWidth() * left  - sprite.getWidth() / 2);
+        this.collisionBox.y = (float) (interactable.getY() + sprite.getHeight() * top  - sprite.getHeight() / 2);
+        this.collisionBox.width = (float) (sprite.getWidth() * (right - left));
+        this.collisionBox.height = (float) (sprite.getHeight() * (bottom - top));
     }
 }
